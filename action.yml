@@ -1,0 +1,27 @@
+name: Deploy to Railway
+description: Deploy to Railway using the Railway CLI, so we can get rid of the payment of extra users for the GitHub Integration
+inputs:
+  project-token:
+    description: The Railway project token
+    required: true
+  service-name:
+    description: The name of the service to deploy
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Check if Railway CLI is installed
+      shell: bash
+      run: |
+        if ! which railway; then
+          brew install railway
+        fi
+
+    - name: Deploy to Railway
+      shell: bash
+      run: |
+        railway up --service="$RAILWAY_SERVICE"
+      env:
+        RAILWAY_TOKEN: ${{ inputs.project-token }}
+        RAILWAY_SERVICE: ${{ inputs.service-name }}
