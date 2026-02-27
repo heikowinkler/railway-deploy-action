@@ -15,7 +15,11 @@ runs:
       shell: bash
       run: |
         if ! which railway; then
-          brew install railway
+          if [[ "$OSTYPE" == "darwin"* ]]; then
+            brew install railway
+          else
+            curl -fsSL https://railway.com/install.sh | sh
+          fi
         fi
 
     - name: Deploy to Railway
