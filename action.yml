@@ -14,13 +14,28 @@ runs:
     - name: Check if Railway CLI is installed
       shell: bash
       run: |
-        if ! which railway; then
-          if [[ "$OSTYPE" == "darwin"* ]]; then
-            brew install railway
-          else
-            curl -fsSL https://railway.com/install.sh | sh
-          fi
+        if which railway; then
+          exit 0
         fi
+
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+          brew install railway
+          exit 0
+        fi
+
+        curl -fsSL https://railway.com/install.sh | sh
+
+        railway_bin="$HOME/.railway/bin"
+
+        if [[ ! -x "$railway_bin/railway" ]]; then
+          echo "Railway CLI is not at $railway_bin after install" >&2
+          exit 1
+        fi
+
+        # The installer only appends a PATH line to the shell profile, which no
+        # later step reads: every step runs its own non-login shell. GITHUB_PATH
+        # is the one handoff that carries across steps.
+        echo "$railway_bin" >> "$GITHUB_PATH"
 
     - name: Deploy to Railway
       shell: bash
